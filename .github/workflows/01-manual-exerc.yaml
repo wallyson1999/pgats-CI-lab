@@ -35,5 +35,5 @@ jobs:
       run: yarn
 
     # execução dos testes e2e
-    - name: Executando Testes E2E
+    - name: Executando Testes e2e
       run: yarn run e2e
