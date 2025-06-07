@@ -1,6 +1,6 @@
-# CI de Nível 04 - Disparo de testes dentro da pipeline de dev
+# CI de nível 04 - Integrado com a pipe de desenvolvimento
 
-name: 'Execução Integrada'
+name: 'Execução integrada'
 
 on:
   workflow_dispatch:
@@ -8,39 +8,34 @@ on:
 jobs:
   inspecao:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: latest
-
-      - name: Install Yarn
+      - name: Instalando Yarn
         run: npm install -g yarn
 
-      - name: Install project dependencies
+      - name: Instalando dependencias
         run: yarn
 
-      - name: Code linting
+      - name: Checando padronização de código
         run: yarn lint
+
   unidade:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: latest
-
-      - name: Install Yarn
+      - name: Instalando Yarn
         run: npm install -g yarn
 
-      - name: Install project dependencies
+      - name: Instalando dependencias
         run: yarn
 
-      - name: Run unit tests
-        run: yarn run test
+      - name: Executando testes de unidade
+        run: yarn test
+
   e2e-tests:
     runs-on: ubuntu-latest
 
@@ -49,28 +44,29 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: latest
+          node-version: 22.x
 
-      - name: Install Yarn
+      - name: Instalando o Yarn
         run: npm install -g yarn
 
-      - name: Install project dependencies
+      - name: Instalando dependencias
         run: yarn
 
-      - name: Install Playwright browsers
+      - name: Instalando playwright
         run: yarn playwright install
 
-      - name: Run E2E tests
+      - name: Executando testes e2e
         run: yarn run e2e
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        if: ${{ always() }}
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
         with:
+          name: relatorio
           path: ./playwright-report
+
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy simulation
-        run: echo 'Deploy application'
+      - name: Simulação de deploy
+        run: echo "Simulando o deploy!"
