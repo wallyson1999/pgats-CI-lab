@@ -1,0 +1,51 @@
+# CI de nível 03 - Disparo após a conclusão de um pipeline
+
+name: 'Execução Pós-deploy'
+
+# regras de disparo (gatilhos/trigger)
+
+on:
+  workflow_run:
+    workflows: ['Execução Manual']
+    types:
+      - completed
+
+# trabalhos/tarefas dentro do pipeline = jobs
+jobs:
+  e2e-tests:
+    #máquina em que o job vai ser executado
+    runs-on: ubuntu-latest
+
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    # passos do script de build
+    steps:
+      # clone do projeto
+      - uses: actions/checkout@v4
+
+      # instalação do node
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      #instalação do yarn
+      - name: Instalando yarn
+        run: npm install -g yarn
+
+        #instalar dependencias com o Yarn
+      - name: Instalando dependencias
+        run: yarn
+
+        #instalar browsers do playwright
+      - name: Instalando playwright
+        run: yarn playwright install
+
+        # executar testes e2e
+      - name: Executando Testes e2e
+        run: yarn run e2e
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: relatorio
+          path: ./playwright-report
